@@ -179,5 +179,18 @@ def weekly_trend_filter(symbol):
 from config import SECTOR_MAP
 
 def get_sector(symbol):
-    base = symbol.replace(".NS", "")
-    return SECTOR_MAP.get(base, "OTHER")
+    try:
+        import yfinance as yf
+
+        ticker = yf.Ticker(symbol)
+        info = ticker.info
+
+        sector = info.get("sector", None)
+
+        if not sector:
+            return "OTHER"
+
+        return sector
+
+    except Exception:
+        return "OTHER"
