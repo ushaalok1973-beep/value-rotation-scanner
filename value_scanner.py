@@ -63,49 +63,46 @@ def run_scanner():
     results = []
 
     # Step 2: feature + scoring
-for i, stock in enumerate(raw_data):
-    try:
-        features = build_features(stock)
-        score = compute_score(features)
+    for i, stock in enumerate(raw_data):
+        try:
+            # Step 2A: build features + score
+            features = build_features(stock)
+            score = compute_score(features)
 
-        symbol = stock["symbol"]
+            # symbol extraction
+            symbol = stock.get("symbol", None)
+            if symbol is None:
+                continue
 
-        from feature_engine import get_sector
-        sector = get_sector(symbol)
+            # sector mapping
+            from feature_engine import get_sector
+            sector = get_sector(symbol)
 
-        results.append({
-            "symbol": symbol,
-            "sector": sector,
-            "score": score,
-            "correction": features["correction"],
-            "ema_trend": features["ema_trend"],
-            "rsi": features["rsi"],
-            "growth": features["growth"],
-            "debt": features["debt"]
-        })
+            # Step 2B: normalize outputs safely
+            correction = features.get("correction", 0)
+            ema_trend = features.get("ema_trend", False)
+            rsi = features.get("rsi", 0)
+            growth = features.get("growth", 0)
+            debt = features.get("debt", 0)
 
-    except Exception as e:
-        print(f"[ERROR] {stock.get('symbol', 'UNKNOWN')}: {e}")
-        continue
+            results.append({
+                "symbol": symbol,
+                "sector": sector,
+                "score": score,
+                "correction": correction,
+                "ema_trend": ema_trend,
+                "rsi": rsi,
+                "growth": growth,
+                "debt": debt
+            })
+
+        except Exception as e:
+            print(f"[ERROR] {stock.get('symbol', 'UNKNOWN')}: {e}")
+            continue
 
     # Step 3: ranking
     df = pd.DataFrame(results)
-
-sector_strength = df.groupby("sector")["score"].mean().to_dict()
-
-df["sector_boost"] = df["sector"].map(sector_strength)
-
-df["score"] = df["score"] + (df["sector_boost"] * 0.15)
-# =========================
-# STEP 2B: APPLY WEEKLY TREND FILTER (SOFT FILTER)
-# =========================
-df["score"] = df.apply(
-    lambda x: x["score"] * 1.2 if x["ema_trend"] == True else x["score"] * 0.6,
-    axis=1
-)
-
-# NOW SORT AFTER ADJUSTMENT
-df = df.sort_values(by="score", ascending=False)
+    df = df.sort_values(by="score", ascending=False)
 
     # Step 4: filters (your thesis filter)
     df_filtered = df[
@@ -114,13 +111,12 @@ df = df.sort_values(by="score", ascending=False)
         (df["ema_trend"] == True)
     ]
 
-    # Step 5: output
-    print("\nTop 20 Value Rotation Candidates:\n")
+    print("\nTop 20 Value Rotation Candidates:")
     print(df_filtered.head(20))
 
+    # Save output
     df_filtered.to_csv("rotation_candidates.csv", index=False)
-
-    print("\nSaved: rotation_candidates.csv")
+    print("Saved: rotation_candidates.csv")
 
 
 # =========================
