@@ -64,28 +64,37 @@ def run_scanner():
 
     # Step 2: feature + scoring
     for i, stock in enumerate(raw_data):
-        try:
-            features = build_features(stock)
-            score = compute_score(features)
+    try:
+        features = build_features(stock)
+        score = compute_score(features)
 
-            
-from feature_engine import get_sector
+        symbol = stock["symbol"]
 
-sector = get_sector(symbol)
+        # extract required values safely
+        correction = features.get("correction", 0)
+        ema_trend = features.get("ema_trend", False)
+        rsi = features.get("rsi", 0)
+        growth = features.get("growth", 0)
+        debt = features.get("debt", 0)
 
-results.append({
-    "symbol": symbol,
-    "sector": sector,
-    "score": score,
-    "correction": correction,
-    "ema_trend": ema_trend,
-    "rsi": rsi,
-    "growth": growth,
-    "debt": debt
-})
-        except Exception as e:
-            print(f"[ERROR] {stock['symbol']}: {e}")
-            continue
+        # sector mapping
+        from feature_engine import get_sector
+        sector = get_sector(symbol)
+
+        results.append({
+            "symbol": symbol,
+            "sector": sector,
+            "score": score,
+            "correction": correction,
+            "ema_trend": ema_trend,
+            "rsi": rsi,
+            "growth": growth,
+            "debt": debt
+        })
+
+    except Exception as e:
+        print(f"[ERROR] {stock.get('symbol', 'UNKNOWN')}: {e}")
+        continue
 
     # Step 3: ranking
     df = pd.DataFrame(results)
