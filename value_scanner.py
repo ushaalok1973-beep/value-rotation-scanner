@@ -1,3 +1,4 @@
+from telegram_alert import send_telegram_message
 from feature_engine import weekly_trend_filter
 import pandas as pd
 
@@ -110,6 +111,19 @@ def run_scanner():
         (df["correction"] <= 50) &
         (df["ema_trend"] == True)
     ]
+    if len(df_filtered) > 0:
+
+    top = df_filtered.head(5)
+
+    message = "<b>Value Rotation Scan</b>\n\n"
+
+    for _, row in top.iterrows():
+        message += (
+            f"{row['symbol']} | {row['sector']}\n"
+            f"Score: {row['score']:.2f}\n\n"
+        )
+
+    send_telegram_message(message)
 
     print("\nTop 20 Value Rotation Candidates:")
     print(df_filtered.head(20))
