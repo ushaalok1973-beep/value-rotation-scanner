@@ -68,16 +68,21 @@ def run_scanner():
             features = build_features(stock)
             score = compute_score(features)
 
-            results.append({
-                "symbol": features["symbol"],
-                "score": round(score, 2),
-                "correction": features["correction"],
-                "ema_trend": features["ema_trend"],
-                "rsi": features["rsi"],
-                "growth": features["growth"],
-                "debt": features["debt"]
-            })
+            
+from feature_engine import get_sector
 
+sector = get_sector(symbol)
+
+results.append({
+    "symbol": symbol,
+    "sector": sector,
+    "score": score,
+    "correction": correction,
+    "ema_trend": ema_trend,
+    "rsi": rsi,
+    "growth": growth,
+    "debt": debt
+})
         except Exception as e:
             print(f"[ERROR] {stock['symbol']}: {e}")
             continue
