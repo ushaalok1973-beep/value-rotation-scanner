@@ -86,3 +86,30 @@ REQUIRE_ALL_COLUMNS = False
 # SAFE DEFAULTS FOR SCANNER
 # -------------------------
 MAX_STOCKS_TO_PROCESS = 700
+
+
+SECTOR_MAP = {
+    "TCS": "IT",
+    "INFY": "IT",
+    "HCLTECH": "IT",
+    "WIPRO": "IT",
+    "TECHM": "IT",
+
+    "HDFCBANK": "BANKING",
+    "ICICIBANK": "BANKING",
+    "SBIN": "BANKING",
+    "KOTAKBANK": "BANKING",
+    "AXISBANK": "BANKING",
+
+    "MARUTI": "AUTO",
+    "M&M": "AUTO",
+    "TATAMOTORS": "AUTO",
+
+    "SUNPHARMA": "PHARMA",
+    "CIPLA": "PHARMA",
+    "DRREDDY": "PHARMA",
+
+    "RELIANCE": "ENERGY",
+    "ONGC": "ENERGY",
+    "IOC": "ENERGY",
+}
