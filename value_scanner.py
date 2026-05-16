@@ -53,6 +53,7 @@ def load_symbols():
 # MAIN SCANNER
 # =========================
 
+
 def run_scanner():
     symbols = load_symbols()
 
@@ -65,29 +66,24 @@ def run_scanner():
 
     # Step 2: feature + scoring
     for i, stock in enumerate(raw_data):
+
         try:
-            # Step 2A: build features + score
             features = build_features(stock)
             score = compute_score(features)
 
-            # symbol extraction
-            symbol = stock.get("symbol", None)
-            if symbol is None:
-                continue
+            # required fields from features
+            correction = features.get("correction")
+            ema_trend = features.get("ema_trend")
+            rsi = features.get("rsi")
+            growth = features.get("growth")
+            debt = features.get("debt")
 
-            # sector mapping
+            # sector function (from feature_engine)
             from feature_engine import get_sector
-            sector = get_sector(symbol)
-
-            # Step 2B: normalize outputs safely
-            correction = features.get("correction", 0)
-            ema_trend = features.get("ema_trend", False)
-            rsi = features.get("rsi", 0)
-            growth = features.get("growth", 0)
-            debt = features.get("debt", 0)
+            sector = get_sector(stock["symbol"])
 
             results.append({
-                "symbol": symbol,
+                "symbol": stock["symbol"],
                 "sector": sector,
                 "score": score,
                 "correction": correction,
@@ -111,27 +107,33 @@ def run_scanner():
         (df["correction"] <= 50) &
         (df["ema_trend"] == True)
     ]
+
+    print("\nTop 20 Value Rotation Candidates:")
+    print(df_filtered.head(20))
+
+    # Step 5: save output
+    df_filtered.to_csv("rotation_candidates.csv", index=False)
+
+    print("Saved: rotation_candidates.csv")
+
+    # Step 6: TELEGRAM ALERT (SAFE BLOCK)
     if len(df_filtered) > 0:
+
+        from telegram_alert import send_telegram_message
 
         top = df_filtered.head(5)
 
         message = "<b>Value Rotation Scan</b>\n\n"
 
         for _, row in top.iterrows():
-        message += (
-            f"{row['symbol']} | {row['sector']}\n"
-            f"Score: {row['score']:.2f}\n\n"
-        )
+
+            message += (
+                f"{row['symbol']} | {row['sector']}\n"
+                f"Score: {row['score']:.2f}\n"
+                f"RSI: {row['rsi']:.2f}\n\n"
+            )
 
         send_telegram_message(message)
-
-    print("\nTop 20 Value Rotation Candidates:")
-    print(df_filtered.head(20))
-
-    # Save output
-    df_filtered.to_csv("rotation_candidates.csv", index=False)
-    print("Saved: rotation_candidates.csv")
-
 
 # =========================
 # ENTRY POINT
