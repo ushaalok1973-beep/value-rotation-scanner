@@ -63,21 +63,13 @@ def run_scanner():
     results = []
 
     # Step 2: feature + scoring
-    for i, stock in enumerate(raw_data):
+for i, stock in enumerate(raw_data):
     try:
         features = build_features(stock)
         score = compute_score(features)
 
         symbol = stock["symbol"]
 
-        # extract required values safely
-        correction = features.get("correction", 0)
-        ema_trend = features.get("ema_trend", False)
-        rsi = features.get("rsi", 0)
-        growth = features.get("growth", 0)
-        debt = features.get("debt", 0)
-
-        # sector mapping
         from feature_engine import get_sector
         sector = get_sector(symbol)
 
@@ -85,11 +77,11 @@ def run_scanner():
             "symbol": symbol,
             "sector": sector,
             "score": score,
-            "correction": correction,
-            "ema_trend": ema_trend,
-            "rsi": rsi,
-            "growth": growth,
-            "debt": debt
+            "correction": features["correction"],
+            "ema_trend": features["ema_trend"],
+            "rsi": features["rsi"],
+            "growth": features["growth"],
+            "debt": features["debt"]
         })
 
     except Exception as e:
