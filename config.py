@@ -1,45 +1,59 @@
 # =========================
-# VALUE ROTATION SCANNER CONFIG (CLEANED)
+# VALUE ROTATION SCANNER CONFIG
 # =========================
 
-# Universe
 UNIVERSE_FILE = "universe.csv"
 
-# Market cap filter
+# -------------------------
+# COLUMN SAFETY (FIX FOR CRASH)
+# -------------------------
+
+SYMBOL_COLUMN_PRIMARY = "Symbol"
+
+ALT_SYMBOL_COLUMNS = [
+    "Symbol",
+    "SYMBOL",
+    "Ticker",
+    "TICKER",
+    "NSE Symbol",
+    "nse_symbol",
+    "tradingsymbol",
+    "TradingSymbol"
+]
+
+PRICE_COLUMNS = ["Close", "close", "LTP", "ltp"]
+VOLUME_COLUMNS = ["Volume", "volume"]
+
+# -------------------------
+# CORE VALUE ROTATION FILTERS
+# -------------------------
+
 MIN_MARKET_CAP_CR = 1000
 
-# =========================
-# PRICE CORRECTION LOGIC
-# =========================
-# Your strategy: stocks corrected from highs
+# Deep correction zone (your core idea)
 MIN_CORRECTION = 40
 MAX_CORRECTION = 50
 
-# =========================
-# TECHNICAL FILTERS
-# =========================
+# Technical filters
 MAX_RSI = 45
 EMA_PERIOD = 20
 
-# =========================
-# FUNDAMENTAL FILTERS
-# =========================
-
-# FIX: unified PEG naming (this was causing your crash)
-MIN_PEG = 0.0
+# Fundamental filters
 MAX_PEG = 1.0
+MIN_FII_DII_HOLDING = 2  # combined %
 
-# FII + DII combined holding %
-MIN_FII_DII_HOLDING = 2
+# -------------------------
+# OPTIONAL FUNDAMENTAL EXPANSION (future-ready)
+# -------------------------
 
-# Optional safety filters (recommended for scanner stability)
-MIN_ROE = 10
-MAX_DEBT_TO_EQUITY = 2.0
-MIN_REVENUE_GROWTH = 0
+MAX_PE = None
+MIN_REVENUE_GROWTH = None
+MIN_ROE = None
+MAX_DEBT_EQUITY = None
 
-# =========================
+# -------------------------
 # SCORING SYSTEM
-# =========================
+# -------------------------
 
 WEIGHTS = {
     "correction": 1.5,
@@ -54,23 +68,26 @@ WEIGHTS = {
     "peg": 1.0
 }
 
-# =========================
-# AI LAYER
-# =========================
+# -------------------------
+# OUTPUT CONTROL (NEW FIX)
+# -------------------------
+
+TOP_RESULTS_LIMIT = 10
+
+SORT_BY = "score"   # or "momentum", "correction", etc.
+
+# -------------------------
+# ADVANCED FEATURES
+# -------------------------
+
+SECTOR_ROTATION = True
+AI_RANKING_SCORE = True
+CANDLE_DETECTION_WEEKLY = True
+
+# -------------------------
+# RISK / STABILITY
+# -------------------------
+
 AI_BONUS_MAX = 2.0
-
-# =========================
-# OUTPUT SETTINGS
-# =========================
-TOP_N_RESULTS = 10
-
-# =========================
-# TELEGRAM (used later)
-# =========================
-TELEGRAM_BOT_TOKEN = ""
-TELEGRAM_CHAT_ID = ""
-
-# =========================
-# DEBUG MODE
-# =========================
-DEBUG = True
+STRICT_COLUMN_CHECK = False
+AUTO_DETECT_SYMBOL = True
