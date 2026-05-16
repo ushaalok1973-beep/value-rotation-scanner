@@ -107,6 +107,23 @@ def run_scanner():
         (df["correction"] <= 50) &
         (df["ema_trend"] == True)
     ]
+    for _, row in df_filtered.iterrows():
+
+    if row["score"] < 3:
+        continue
+
+    msg = f"""
+📌 {row['symbol']}
+💰 Price: {row.get('price', 'NA')}
+⭐ Score: {round(row['score'], 2)}
+📊 RSI: {round(row['rsi'], 2)}
+📈 Growth: {round(row['growth'], 2)}
+⚠️ Debt: {round(row['debt'], 2)}
+
+🔥 Signal: {'STRONG BUY' if row['score'] > 3.5 else 'WATCH'}
+"""
+
+    send_telegram_message(msg)
 
     print("\nTop 20 Value Rotation Candidates:")
     print(df_filtered.head(20))
