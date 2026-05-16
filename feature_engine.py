@@ -1,3 +1,4 @@
+import yfinance as yf
 import pandas as pd
 import numpy as np
 
@@ -142,3 +143,34 @@ def build_features(stock_data):
         "growth": growth,
         "debt": debt
     }
+
+
+# =========================
+# WEEKLY TREND FILTER
+# =========================
+
+def weekly_trend_filter(symbol):
+    """
+    Returns True if stock is in bullish weekly trend
+    based on EMA20 > EMA50 on weekly timeframe
+    """
+
+    try:
+        df = yf.download(symbol, period="2y", interval="1wk", progress=False)
+
+        if df is None or df.empty or len(df) < 60:
+            return False
+
+        df["EMA20"] = df["Close"].ewm(span=20).mean()
+        df["EMA50"] = df["Close"].ewm(span=50).mean()
+
+        latest = df.iloc[-1]
+
+        # bullish trend condition
+        if latest["EMA20"] > latest["EMA50"]:
+            return True
+
+        return False
+
+    except Exception:
+        return False
