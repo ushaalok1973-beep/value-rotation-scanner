@@ -35,7 +35,15 @@ def load_symbols():
     )
 
     # convert to yfinance format
-    symbols = [s.upper() + ".NS" for s in symbols]
+    symbols = [
+    s.upper().replace(".NS.NS", ".NS").strip()
+    for s in symbols
+]
+
+symbols = [
+    s if s.endswith(".NS") else s + ".NS"
+    for s in symbols
+]
 
     return symbols
 
