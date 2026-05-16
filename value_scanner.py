@@ -90,6 +90,11 @@ results.append({
     # Step 3: ranking
     df = pd.DataFrame(results)
 
+sector_strength = df.groupby("sector")["score"].mean().to_dict()
+
+df["sector_boost"] = df["sector"].map(sector_strength)
+
+df["score"] = df["score"] + (df["sector_boost"] * 0.15)
 # =========================
 # STEP 2B: APPLY WEEKLY TREND FILTER (SOFT FILTER)
 # =========================
