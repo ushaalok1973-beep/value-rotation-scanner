@@ -53,7 +53,6 @@ def load_symbols():
 # MAIN SCANNER
 # =========================
 
-
 def run_scanner():
     symbols = load_symbols()
 
@@ -71,14 +70,12 @@ def run_scanner():
             features = build_features(stock)
             score = compute_score(features)
 
-            # required fields from features
             correction = features.get("correction")
             ema_trend = features.get("ema_trend")
             rsi = features.get("rsi")
             growth = features.get("growth")
             debt = features.get("debt")
 
-            # sector function (from feature_engine)
             from feature_engine import get_sector
             sector = get_sector(stock["symbol"])
 
@@ -101,54 +98,74 @@ def run_scanner():
     df = pd.DataFrame(results)
     df = df.sort_values(by="score", ascending=False)
 
-    # Step 4: filters (your thesis filter)
+    # Step 4: filters (thesis filter)
     df_filtered = df[
         (df["correction"] >= 40) &
         (df["correction"] <= 50) &
         (df["ema_trend"] == True)
     ]
-    for _, row in df_filtered.iterrows():
-
-    if row["score"] < 3:
-        continue
-
-    msg = f"""
-📌 {row['symbol']}
-💰 Price: {row.get('price', 'NA')}
-⭐ Score: {round(row['score'], 2)}
-📊 RSI: {round(row['rsi'], 2)}
-📈 Growth: {round(row['growth'], 2)}
-⚠️ Debt: {round(row['debt'], 2)}
-
-🔥 Signal: {'STRONG BUY' if row['score'] > 3.5 else 'WATCH'}
-"""
-
-    send_telegram_message(msg)
 
     print("\nTop 20 Value Rotation Candidates:")
     print(df_filtered.head(20))
 
     # Step 5: save output
     df_filtered.to_csv("rotation_candidates.csv", index=False)
-
     print("Saved: rotation_candidates.csv")
 
-    # Step 6: TELEGRAM ALERT (SAFE BLOCK)
-    if len(df_filtered) > 0:
+    # Step 6: TELEGRAM SMART ALERTS (FIXED + CLEAN)
 
-        from telegram_alert import send_telegram_message
+    from telegram_alert import send_telegram_message
 
-        top = df_filtered.head(5)
+    def is_trend_confirmed(row):
+        return (
+            row["ema_trend"] == True and
+            45 <= row["rsi"] <= 75
+        )
 
-        message = "<b>Value Rotation Scan</b>\n\n"
+    def detect_candle(row):
+        rsi = row.get("rsi", 50)
 
-        for _, row in top.iterrows():
+        if rsi < 35:
+            return "Hammer-like (oversold)"
+        elif 45 <= rsi <= 60:
+            return "Bullish continuation"
+        elif rsi > 70:
+            return "Overbought"
+        else:
+            return "Neutral"
 
-            message += (
-                f"{row['symbol']} | {row['sector']}\n"
-                f"Score: {row['score']:.2f}\n"
-                f"RSI: {row['rsi']:.2f}\n\n"
-            )
+    alerts = []
+
+    for _, row in df_filtered.iterrows():
+
+        if row["score"] < 3:
+            continue
+
+        if not is_trend_confirmed(row):
+            continue
+
+        alerts.append(row)
+
+    alerts = sorted(alerts, key=lambda x: x["score"], reverse=True)
+    alerts = alerts[:5]
+
+    for row in alerts:
+
+        candle = detect_candle(row)
+
+        message = f"""
+📌 {row['symbol']}
+🏢 Sector: {row['sector']}
+
+💰 Score: {round(row['score'], 2)}
+📊 RSI: {round(row['rsi'], 2)}
+📈 Growth: {round(row['growth'], 2)}
+⚠️ Debt: {round(row['debt'], 2)}
+
+🕯 Candle: {candle}
+
+🔥 Signal: {'STRONG BUY' if row['score'] > 3.5 else 'WATCH'}
+"""
 
         send_telegram_message(message)
 
