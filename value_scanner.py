@@ -14,10 +14,6 @@ from config import UNIVERSE_FILE
 def load_symbols():
     df = pd.read_csv(UNIVERSE_FILE)
 
-    # NSE CSV usually has "Symbol"
-    def load_symbols():
-    df = pd.read_csv(UNIVERSE_FILE)
-
     # find correct symbol column safely
     symbol_col = None
 
@@ -40,11 +36,6 @@ def load_symbols():
 
     # convert to yfinance format
     symbols = [s.upper() + ".NS" for s in symbols]
-
-    return symbols
-
-    # convert to yfinance format
-    symbols = [s.strip().upper() + ".NS" for s in symbols]
 
     return symbols
 
