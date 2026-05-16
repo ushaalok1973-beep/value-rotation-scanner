@@ -14,9 +14,7 @@ from config import UNIVERSE_FILE
 def load_symbols():
     df = pd.read_csv(UNIVERSE_FILE)
 
-    # find correct symbol column safely
     symbol_col = None
-
     for col in df.columns:
         if col.lower() in ["symbol", "ticker"]:
             symbol_col = col
@@ -34,16 +32,17 @@ def load_symbols():
         .tolist()
     )
 
-    # convert to yfinance format
     symbols = [
-    s.upper().replace(".NS.NS", ".NS").strip()
-    for s in symbols
-]
+        s.upper().replace(".NS.NS", ".NS").strip()
+        for s in symbols
+    ]
 
-symbols = [
-    s if s.endswith(".NS") else s + ".NS"
-    for s in symbols
-]
+    symbols = [
+        s if s.endswith(".NS") else s + ".NS"
+        for s in symbols
+    ]
+
+    print("SAMPLE SYMBOLS:", symbols[:10])
 
     return symbols
 
