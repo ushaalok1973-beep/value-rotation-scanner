@@ -15,7 +15,33 @@ def load_symbols():
     df = pd.read_csv(UNIVERSE_FILE)
 
     # NSE CSV usually has "Symbol"
-    symbols = df["Symbol"].dropna().unique().tolist()
+    def load_symbols():
+    df = pd.read_csv(UNIVERSE_FILE)
+
+    # find correct symbol column safely
+    symbol_col = None
+
+    for col in df.columns:
+        if col.lower() in ["symbol", "ticker"]:
+            symbol_col = col
+            break
+
+    if symbol_col is None:
+        raise ValueError(f"No Symbol column found. Available columns: {list(df.columns)}")
+
+    symbols = (
+        df[symbol_col]
+        .dropna()
+        .astype(str)
+        .str.strip()
+        .unique()
+        .tolist()
+    )
+
+    # convert to yfinance format
+    symbols = [s.upper() + ".NS" for s in symbols]
+
+    return symbols
 
     # convert to yfinance format
     symbols = [s.strip().upper() + ".NS" for s in symbols]
