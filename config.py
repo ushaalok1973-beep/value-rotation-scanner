@@ -1,61 +1,62 @@
 # =========================
-# VALUE ROTATION SCANNER CONFIG
+# VALUE ROTATION SCANNER CONFIG (FIXED)
 # =========================
 
+# -------------------------
+# DATA INPUT
+# -------------------------
 UNIVERSE_FILE = "universe.csv"
 
-# -------------------------
-# COLUMN SAFETY (FIX FOR CRASH)
-# -------------------------
+# IMPORTANT: column name expected in CSV
+SYMBOL_COLUMN = "Symbol"
 
-SYMBOL_COLUMN_PRIMARY = "Symbol"
-
-ALT_SYMBOL_COLUMNS = [
-    "Symbol",
-    "SYMBOL",
-    "Ticker",
-    "TICKER",
-    "NSE Symbol",
-    "nse_symbol",
-    "tradingsymbol",
-    "TradingSymbol"
-]
-
-PRICE_COLUMNS = ["Close", "close", "LTP", "ltp"]
-VOLUME_COLUMNS = ["Volume", "volume"]
+# If your CSV uses different naming, fallback logic can use this list in code
+POSSIBLE_SYMBOL_COLUMNS = ["Symbol", "SYMBOL", "Ticker", "TICKER"]
 
 # -------------------------
-# CORE VALUE ROTATION FILTERS
+# UNIVERSE CONTROL
 # -------------------------
+USE_NIFTY50 = True
+USE_MIDCAP150 = True
+USE_SMALLCAP250 = True
 
+# -------------------------
+# OUTPUT CONTROL
+# -------------------------
+TOP_N_RESULTS = 10   # ✅ FIX: you asked top 10 only
+
+# -------------------------
+# MARKET CAP FILTER
+# -------------------------
 MIN_MARKET_CAP_CR = 1000
 
-# Deep correction zone (your core idea)
+# -------------------------
+# PRICE CORRECTION FILTER (CORE STRATEGY)
+# -------------------------
 MIN_CORRECTION = 40
 MAX_CORRECTION = 50
 
-# Technical filters
+# -------------------------
+# TECHNICAL FILTERS
+# -------------------------
 MAX_RSI = 45
 EMA_PERIOD = 20
 
-# Fundamental filters
+# -------------------------
+# FUNDAMENTAL FILTERS
+# -------------------------
 MAX_PEG = 1.0
-MIN_PEG = 0   # ✅ ADD THIS (fixes ImportError)
+MIN_PEG = 0.0   # ✅ FIX: required for scorer import compatibility
+
+MAX_PE = 25
+
 MIN_FII_DII_HOLDING = 2  # combined %
+MIN_ROE = 10
+MAX_DEBT_TO_EQUITY = 1.5
 
 # -------------------------
-# OPTIONAL FUNDAMENTAL EXPANSION (future-ready)
+# SCORING WEIGHTS (BASE 10 SYSTEM)
 # -------------------------
-
-MAX_PE = None
-MIN_REVENUE_GROWTH = None
-MIN_ROE = None
-MAX_DEBT_EQUITY = None
-
-# -------------------------
-# SCORING SYSTEM
-# -------------------------
-
 WEIGHTS = {
     "correction": 1.5,
     "growth": 1.5,
@@ -66,29 +67,22 @@ WEIGHTS = {
     "trend": 1.0,
     "rsi": 1.0,
     "orderbook": 1.0,
-    "peg": 1.0
+    "peg": 1.0,
+    "pe": 1.0
 }
 
 # -------------------------
-# OUTPUT CONTROL (NEW FIX)
+# AI LAYER
 # -------------------------
-
-TOP_RESULTS_LIMIT = 10
-
-SORT_BY = "score"   # or "momentum", "correction", etc.
-
-# -------------------------
-# ADVANCED FEATURES
-# -------------------------
-
-SECTOR_ROTATION = True
-AI_RANKING_SCORE = True
-CANDLE_DETECTION_WEEKLY = True
-
-# -------------------------
-# RISK / STABILITY
-# -------------------------
-
 AI_BONUS_MAX = 2.0
-STRICT_COLUMN_CHECK = False
-AUTO_DETECT_SYMBOL = True
+
+# -------------------------
+# DATA QUALITY SETTINGS
+# -------------------------
+DROP_INVALID_ROWS = True
+REQUIRE_ALL_COLUMNS = False
+
+# -------------------------
+# SAFE DEFAULTS FOR SCANNER
+# -------------------------
+MAX_STOCKS_TO_PROCESS = 700
