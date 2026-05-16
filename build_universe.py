@@ -4,8 +4,8 @@ import pandas as pd
 # LOAD NSE FILES
 # =========================
 
-midcap = pd.read_csv("nifty_midcap150.csv")
-smallcap = pd.read_csv("nifty_smallcap250.csv")
+midcap = pd.read_csv("ind_niftymidcap150list.csv")
+smallcap = pd.read_csv("ind_niftysmallcap250list.csv")
 
 # =========================
 # DETECT SYMBOL COLUMN
