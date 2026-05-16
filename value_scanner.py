@@ -1,3 +1,4 @@
+from feature_engine import weekly_trend_filter
 import pandas as pd
 
 from data_loader import load_universe
@@ -83,7 +84,17 @@ def run_scanner():
 
     # Step 3: ranking
     df = pd.DataFrame(results)
-    df = df.sort_values(by="score", ascending=False)
+
+# =========================
+# STEP 2B: APPLY WEEKLY TREND FILTER (SOFT FILTER)
+# =========================
+df["score"] = df.apply(
+    lambda x: x["score"] * 1.2 if x["ema_trend"] == True else x["score"] * 0.6,
+    axis=1
+)
+
+# NOW SORT AFTER ADJUSTMENT
+df = df.sort_values(by="score", ascending=False)
 
     # Step 4: filters (your thesis filter)
     df_filtered = df[
