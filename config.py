@@ -40,6 +40,7 @@ EMA_PERIOD = 20
 
 # Fundamental filters
 MAX_PEG = 1.0
+MIN_PEG = 0   # ✅ ADD THIS (fixes ImportError)
 MIN_FII_DII_HOLDING = 2  # combined %
 
 # -------------------------
