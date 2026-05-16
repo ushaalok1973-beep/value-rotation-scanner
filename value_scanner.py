@@ -113,17 +113,17 @@ def run_scanner():
     ]
     if len(df_filtered) > 0:
 
-    top = df_filtered.head(5)
+        top = df_filtered.head(5)
 
-    message = "<b>Value Rotation Scan</b>\n\n"
+        message = "<b>Value Rotation Scan</b>\n\n"
 
-    for _, row in top.iterrows():
+        for _, row in top.iterrows():
         message += (
             f"{row['symbol']} | {row['sector']}\n"
             f"Score: {row['score']:.2f}\n\n"
         )
 
-    send_telegram_message(message)
+        send_telegram_message(message)
 
     print("\nTop 20 Value Rotation Candidates:")
     print(df_filtered.head(20))
