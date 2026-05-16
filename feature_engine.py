@@ -174,3 +174,10 @@ def weekly_trend_filter(symbol):
 
     except Exception:
         return False
+    
+
+from config import SECTOR_MAP
+
+def get_sector(symbol):
+    base = symbol.replace(".NS", "")
+    return SECTOR_MAP.get(base, "OTHER")
